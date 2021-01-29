@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="gaur.himanshu.august.musicsearch.remote.response.MusicDetail" />
+
+        <variable
+            name="music"
+            type="MusicDetail" />
+
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        app:cardElevation="4dp"
+        android:elevation="2dp"
+        app:cardCornerRadius="4dp">
+
+        <RelativeLayout
+            android:background="@color/cardview_light_background"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/list_image"
+                bindImage="@{String.valueOf(music.artworkUrl100)}"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="fitXY"
+                android:contentDescription="@string/image"
+                android:src="@color/purple_700" />
+
+            <TextView
+                android:id="@+id/track_name"
+                style="@style/TextAppearance.AppCompat.Body2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/list_image"
+                android:padding="4dp"
+                android:text="@{`Track Name : `+music.trackName}"
+                tool:text="hello" />
+
+            <TextView
+                android:id="@+id/artist_name"
+                style="@style/TextAppearance.AppCompat.Body2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/track_name"
+                android:padding="4dp"
+                android:text="@{`Artist : `+music.artistName}"
+                tool:text="hello" />
+
+        </RelativeLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>
