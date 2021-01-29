@@ -1,5 +1,6 @@
 package gaur.himanshu.august.musicsearch.local.ui.search
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import gaur.himanshu.august.musicsearch.Result
 import gaur.himanshu.august.musicsearch.Status
@@ -35,6 +36,9 @@ class FakeApiRepositoryAndroidTest : IApiRepository {
         return if (isConnected) {
             // call the Api and take data
             val data = getApiData()
+            Log.d("TAG", "getSearchData: ")
+            Log.d("TAG", "getSearchData: ")
+            Log.d("TAG", "getSearchData: ")
             cachedMusicFiles.addAll(data)
             musicList.addAll(data)
             refreshRemote()
@@ -96,7 +100,7 @@ class FakeApiRepositoryAndroidTest : IApiRepository {
                 null,
                 null,
                 null,
-                null,
+                "Track 1",
                 null,
                 null,
                 null,
@@ -141,7 +145,7 @@ class FakeApiRepositoryAndroidTest : IApiRepository {
                 null,
                 null,
                 null,
-                null,
+                "track 2",
                 null,
                 null,
                 null,

@@ -14,6 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import gaur.himanshu.august.musicsearch.Status
 import gaur.himanshu.august.musicsearch.databinding.FragmentSearchBinding
 import gaur.himanshu.august.musicsearch.remote.response.MusicDetail
+import gaur.himanshu.august.musicsearch.utils.wrapEspressoIdlingResource
 
 @AndroidEntryPoint
 class SearchFragment : Fragment() {
@@ -52,7 +53,8 @@ class SearchFragment : Fragment() {
                 }
                 Status.SUCCESS -> {
                     hideProgress(_binding)
-                    setRecyclerView(it.peekContent().data!!)
+                     setRecyclerView(it.peekContent().data!!)
+
                 }
             }
         }

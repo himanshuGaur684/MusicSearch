@@ -13,6 +13,7 @@ import gaur.himanshu.august.musicsearch.local.ui.search.repository.IApiRepositor
 import gaur.himanshu.august.musicsearch.remote.ApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -20,27 +21,31 @@ import javax.inject.Singleton
 object HiltModules {
 
 
+    @Qualifier
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class dbDependency
+
+    @Qualifier
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class apiService
+
+
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit {
+    @apiService
+    fun provideRetrofit(): ApiService {
         return Retrofit.Builder().baseUrl("https://itunes.apple.com/")
-            .addConverterFactory(GsonConverterFactory.create()).build()
-    }
-
-    @Provides
-    @Singleton
-    fun provideRetroInterface(retrofit: Retrofit): ApiService {
-        return retrofit.create(ApiService::class.java)
+            .addConverterFactory(GsonConverterFactory.create()).build().create(ApiService::class.java)
     }
 
 
-    @Provides
-    fun provideRepository(apiService: ApiService,musicDao: MusicDao): IApiRepository {
-        return ApiRepository(apiService,musicDao)
-    }
+
+
+
 
     @Singleton
     @Provides
+    @dbDependency
     fun provideDb(@ApplicationContext context: Context): MusicDb{
         return MusicDb.getInstance(context)
     }
@@ -52,4 +57,14 @@ object HiltModules {
     }
 
 
+}
+
+
+@Module
+@InstallIn(SingletonComponent::class)
+object HiltModulesTwo{
+    @Provides
+    fun provideRepository(@HiltModules.apiService apiService: ApiService,@HiltModules.dbDependency musicDb: MusicDb): IApiRepository {
+        return ApiRepository(apiService,musicDb.getMusicDao())
+    }
 }

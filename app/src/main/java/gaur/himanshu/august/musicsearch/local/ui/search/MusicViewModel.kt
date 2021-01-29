@@ -10,9 +10,9 @@ import gaur.himanshu.august.musicsearch.Result
 import gaur.himanshu.august.musicsearch.Status
 import gaur.himanshu.august.musicsearch.local.ui.search.repository.IApiRepository
 import gaur.himanshu.august.musicsearch.remote.response.MusicDetail
+import gaur.himanshu.august.musicsearch.utils.wrapEspressoIdlingResource
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Singleton
 
 @HiltViewModel
 class MusicViewModel @Inject constructor(
@@ -24,8 +24,10 @@ class MusicViewModel @Inject constructor(
     val searchResult: LiveData<Events<Result<List<MusicDetail>>>> = _searchResult
 
     fun getSearched(search: String) = viewModelScope.launch {
-        _searchResult.postValue(Events(Result(Status.LOADING, null, null)))
-        _searchResult.postValue(Events(repository.getSearchData(search)))
+        wrapEspressoIdlingResource {
+            _searchResult.postValue(Events(Result(Status.LOADING, null, null)))
+            _searchResult.postValue(Events(repository.getSearchData(search)))
+        }
     }
 
 
