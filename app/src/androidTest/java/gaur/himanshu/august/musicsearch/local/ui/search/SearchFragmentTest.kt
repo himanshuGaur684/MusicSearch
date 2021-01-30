@@ -1,6 +1,5 @@
 package gaur.himanshu.august.musicsearch.local.ui.search
 
-import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -13,19 +12,18 @@ import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import gaur.himanshu.august.musicsearch.*
-import gaur.himanshu.august.musicsearch.local.ui.search.repository.IApiRepository
+import gaur.himanshu.august.musicsearch.MainActivity
+import gaur.himanshu.august.musicsearch.MusicSearchFragmentFactory
+import gaur.himanshu.august.musicsearch.R
+import gaur.himanshu.august.musicsearch.launchFragmentInHiltContainer
 import gaur.himanshu.august.musicsearch.utils.EspressoIdlingResource
-import gaur.himanshu.august.musicsearch.utils.getSearchedList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runBlockingTest
-import org.hamcrest.Matchers
 import org.hamcrest.core.AllOf.allOf
 import org.junit.After
 import org.junit.Before
@@ -47,11 +45,12 @@ class SearchFragmentTest {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
+
     @Inject
-    lateinit var repository: IApiRepository
+    lateinit var fragmentFactory: MusicSearchFragmentFactory
 
 
-    lateinit var musicViewModel: MusicViewModel
+    lateinit var musicViewModels: MusicViewModel
     lateinit var realMusicViewModel: MusicViewModel
     lateinit var fakeRepository: FakeApiRepositoryAndroidTest
 
@@ -59,8 +58,8 @@ class SearchFragmentTest {
     fun setUp() {
         hiltRule.inject()
         fakeRepository = FakeApiRepositoryAndroidTest()
-        musicViewModel = MusicViewModel(fakeRepository)
-        realMusicViewModel = MusicViewModel(repository)
+        musicViewModels = MusicViewModel(fakeRepository)
+        //  realMusicViewModel = MusicViewModel(repository)
 
         IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
     }
@@ -107,7 +106,6 @@ class SearchFragmentTest {
     }
 
 
-
     @Test
     fun searchView_searching() = runBlockingTest {
         // check search view is appear or not
@@ -120,8 +118,6 @@ class SearchFragmentTest {
     }
 
 
-
-
     @Test
     fun test_our_recycler_View_visibility() {
         launchActivity()
@@ -129,23 +125,29 @@ class SearchFragmentTest {
     }
 
     @Test
-    fun check_value_is_coming_to_recycler()  {
-        launchActivity()
-        onView(withId(R.id.search_view)).perform(click()).perform(typeSearchViewText("kishore"))
-        realMusicViewModel.getSearched("kishore")
-        val data = repository.getSearchedList("kishore")
-        when (data.status) {
-            Status.SUCCESS -> {
-                onView(withId(R.id.search_progress)).check(matches(Matchers.not(isDisplayed())))
-            }
-            Status.LOADING -> {
-                onView(withId(R.id.search_progress)).check(matches(isDisplayed()))
-            }
-            Status.ERROR -> {
-                onView(withId(R.id.search_progress)).check(matches(Matchers.not(isDisplayed())))
+    fun check_value_is_coming_to_recycler() = runBlockingTest {
+        val navController = mock(NavController::class.java)
 
-            }
+        launchFragmentInHiltContainer<SearchFragment>(fragmentFactory = fragmentFactory) {
+            musicViewModel = musicViewModels
+            adapters.setContentList(fakeRepository.getApiData())
+            Navigation.setViewNavController(requireView(), navController)
         }
+
+        onView(withId(R.id.search_view)).perform(click()).perform(typeSearchViewText("kishore"))
+
+        musicViewModels.getSearched("kishore")
+
+        onView(withId(R.id.recycler_view)).perform(
+            RecyclerViewActions.actionOnItemAtPosition<SearchAdapter.MyViewHolder>(
+                0,
+                click()
+            )
+        )
+
+
+
+
     }
 
     fun typeSearchViewText(text: String?): ViewAction {

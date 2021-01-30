@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import gaur.himanshu.august.musicsearch.local.room.MusicDao
 import gaur.himanshu.august.musicsearch.local.room.MusicDb
+import gaur.himanshu.august.musicsearch.local.ui.search.SearchAdapter
 import gaur.himanshu.august.musicsearch.local.ui.search.repository.ApiRepository
 import gaur.himanshu.august.musicsearch.local.ui.search.repository.IApiRepository
 import gaur.himanshu.august.musicsearch.remote.ApiService
@@ -18,7 +19,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object HiltModules {
+class HiltModules {
 
 
     @Qualifier
@@ -56,13 +57,18 @@ object HiltModules {
         return musicDb.getMusicDao()
     }
 
+    @Provides
+    fun provideSearchAdapter():SearchAdapter{
+        return SearchAdapter()
+    }
+
 
 }
 
 
 @Module
 @InstallIn(SingletonComponent::class)
-object HiltModulesTwo{
+class HiltModulesTwo{
     @Provides
     fun provideRepository(@HiltModules.apiService apiService: ApiService,@HiltModules.dbDependency musicDb: MusicDb): IApiRepository {
         return ApiRepository(apiService,musicDb.getMusicDao())

@@ -1,34 +1,25 @@
 package gaur.himanshu.august.musicsearch.local.ui.search
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.android.material.snackbar.Snackbar
-import dagger.hilt.android.AndroidEntryPoint
+import gaur.himanshu.august.musicsearch.R
 import gaur.himanshu.august.musicsearch.Status
 import gaur.himanshu.august.musicsearch.databinding.FragmentSearchBinding
-import gaur.himanshu.august.musicsearch.remote.response.MusicDetail
-import gaur.himanshu.august.musicsearch.utils.wrapEspressoIdlingResource
+import javax.inject.Inject
 
-@AndroidEntryPoint
-class SearchFragment : Fragment() {
+class SearchFragment @Inject constructor(val adapters: SearchAdapter) :
+    Fragment(R.layout.fragment_search) {
 
-    val musicViewModel: MusicViewModel by viewModels()
+    lateinit var musicViewModel: MusicViewModel
 
-    private val adapter = SearchAdapter()
 
     lateinit var _binding: FragmentSearchBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,7 +31,9 @@ class SearchFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        setRecyclerView()
 
+        musicViewModel = ViewModelProvider(requireActivity()).get(MusicViewModel::class.java)
 
         musicViewModel.searchResult.observe(viewLifecycleOwner) {
             when (it.peekContent().status) {
@@ -49,12 +42,11 @@ class SearchFragment : Fragment() {
                 }
                 Status.ERROR -> {
                     hideProgress(_binding)
-                    setRecyclerView(it.peekContent().data!!)
+                    adapters.setContentList(it.peekContent().data!!)
                 }
                 Status.SUCCESS -> {
                     hideProgress(_binding)
-                     setRecyclerView(it.peekContent().data!!)
-
+                    adapters.setContentList(it.peekContent().data!!)
                 }
             }
         }
@@ -87,14 +79,12 @@ class SearchFragment : Fragment() {
     }
 
 
-
-
-    private fun setRecyclerView(list: List<MusicDetail>?) {
-        if(list!=null){
-            adapter.setContentList(list)
-            _binding.recyclerView.layoutManager=GridLayoutManager(requireContext(),2)
-            _binding.recyclerView.adapter = adapter
+    private fun setRecyclerView() {
+        _binding.recyclerView.apply {
+            layoutManager = GridLayoutManager(requireContext(), 2)
+            adapter = adapters
         }
+
 
     }
 

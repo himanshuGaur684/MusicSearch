@@ -6,8 +6,9 @@ import gaur.himanshu.august.musicsearch.Result
 import gaur.himanshu.august.musicsearch.Status
 import gaur.himanshu.august.musicsearch.local.ui.search.repository.IApiRepository
 import gaur.himanshu.august.musicsearch.remote.response.MusicDetail
+import javax.inject.Inject
 
-class FakeApiRepositoryAndroidTest : IApiRepository {
+class FakeApiRepositoryAndroidTest @Inject constructor(): IApiRepository {
 
 
     private val musicList = mutableListOf<MusicDetail>()
@@ -60,7 +61,7 @@ class FakeApiRepositoryAndroidTest : IApiRepository {
         refreshCache()
     }
 
-    private fun getApiData(): List<MusicDetail> {
+     fun getApiData(): List<MusicDetail> {
         return listOf<MusicDetail>(
             MusicDetail(
                 key = 1,
